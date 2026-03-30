@@ -19,8 +19,8 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     elo INTEGER NOT NULL DEFAULT 1000,
-    elo_peak INTEGER NOT NULL DEFAULT 1000,    -- pic MMR (plus haut elo atteint)
-    elo_lowest INTEGER NOT NULL DEFAULT 1000,  -- lot MMR (plus bas elo atteint)
+    elo_peak INTEGER NOT NULL DEFAULT 1000,    -- pic elo (plus haut elo atteint)
+    mmr INTEGER NOT NULL DEFAULT 1000,         -- MMR (matchmaking rating)
     total_matches INTEGER NOT NULL DEFAULT 0,
     total_wins INTEGER NOT NULL DEFAULT 0,
     total_goals INTEGER NOT NULL DEFAULT 0,
@@ -34,8 +34,9 @@ CREATE TABLE users (
 -- ============================================
 CREATE TABLE matches (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    score_team_a INTEGER NOT NULL DEFAULT 0,
-    score_team_b INTEGER NOT NULL DEFAULT 0,
+    score_team_a INTEGER NOT NULL DEFAULT 0 CHECK (score_team_a <= 10),
+    score_team_b INTEGER NOT NULL DEFAULT 0 CHECK (score_team_b <= 10),
+    goal_limit INTEGER NOT NULL DEFAULT 10,   -- limite de buts pour finir le match
     avg_ball_speed DECIMAL(6,2),          -- vitesse moyenne de balle (km/h)
     avg_time_between_goals INTEGER,        -- temps moyen entre les buts (secondes)
     avg_elo DECIMAL(8,2),                 -- elo moyen de la partie
@@ -90,7 +91,7 @@ SELECT
     u.pseudo,
     u.elo,
     u.elo_peak,
-    u.elo_lowest,
+    u.mmr,
     u.total_matches,
     u.total_wins,
     u.total_goals,

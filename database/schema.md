@@ -9,7 +9,7 @@ erDiagram
         VARCHAR password_hash
         INTEGER elo
         INTEGER elo_peak
-        INTEGER elo_lowest
+        INTEGER mmr
         INTEGER total_matches
         INTEGER total_wins
         INTEGER total_goals
@@ -21,6 +21,7 @@ erDiagram
         UUID id PK
         INTEGER score_team_a
         INTEGER score_team_b
+        INTEGER goal_limit
         DECIMAL avg_ball_speed
         INTEGER avg_time_between_goals
         DECIMAL avg_elo
