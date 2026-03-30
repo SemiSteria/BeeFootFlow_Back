@@ -84,6 +84,8 @@ CREATE OR REPLACE FUNCTION update_user_stats()
 RETURNS TRIGGER AS $$
 DECLARE
     winner_team CHAR;
+    rec RECORD;
+    new_elo INTEGER;
 BEGIN
     IF NEW.status = 'finished' THEN
         -- Déterminer l'équipe gagnante
@@ -113,14 +115,18 @@ BEGIN
 
             -- Elo simple +10/-10 et mise à jour peak Elo et MMR
             IF winner_team IS NOT NULL THEN
-                DECLARE new_elo INTEGER := CASE 
-                    WHEN rec.team = winner_team THEN elo + 10
-                    ELSE GREATEST(0, elo - 10)
-                END;
-                UPDATE users SET 
+                SELECT elo INTO new_elo FROM users WHERE id = rec.user_id;
+                IF rec.team = winner_team THEN
+                    new_elo := new_elo + 10;
+                ELSE
+                    new_elo := GREATEST(0, new_elo - 10);
+                END IF;
+
+                UPDATE users SET
                     elo = new_elo,
                     elo_peak = GREATEST(elo_peak, new_elo),
-                    mmr = new_elo
+                    mmr = new_elo,
+                    updated_at = NOW()
                 WHERE id = rec.user_id;
             END IF;
         END LOOP;
