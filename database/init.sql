@@ -1,26 +1,25 @@
 -- ============================================
--- BeeFootFlow - Schema PostgreSQL
--- Baby-foot connecte - Challenge 48h
+-- BeeFootFlow - Schema PostgreSQL Optimisé
+-- Baby-foot tracker 1v1 / 2v2
 -- ============================================
 
--- Creation de la base de donnees
 -- CREATE DATABASE "BeeFootFlow";
+-- \c BeeFootFlow
 
--- Extension pour generer des UUID
+-- Extension pour UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================
 -- TABLE : users
--- Joueurs inscrits sur la plateforme
 -- ============================================
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     pseudo VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     elo INTEGER NOT NULL DEFAULT 1000,
-    elo_peak INTEGER NOT NULL DEFAULT 1000,    -- pic elo (plus haut elo atteint)
-    mmr INTEGER NOT NULL DEFAULT 1000,         -- MMR (matchmaking rating)
+    elo_peak INTEGER NOT NULL DEFAULT 1000,
+    mmr INTEGER NOT NULL DEFAULT 1000,
     total_matches INTEGER NOT NULL DEFAULT 0,
     total_wins INTEGER NOT NULL DEFAULT 0,
     total_goals INTEGER NOT NULL DEFAULT 0,
@@ -30,62 +29,116 @@ CREATE TABLE users (
 
 -- ============================================
 -- TABLE : matches
--- Parties jouees (1v1 ou 2v2)
 -- ============================================
-CREATE TABLE matches (
+CREATE TABLE IF NOT EXISTS matches (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     score_team_a INTEGER NOT NULL DEFAULT 0 CHECK (score_team_a <= 10),
     score_team_b INTEGER NOT NULL DEFAULT 0 CHECK (score_team_b <= 10),
-    goal_limit INTEGER NOT NULL DEFAULT 10,   -- limite de buts pour finir le match
-    avg_ball_speed DECIMAL(6,2),          -- vitesse moyenne de balle (km/h)
-    avg_time_between_goals INTEGER,        -- temps moyen entre les buts (secondes)
-    avg_elo DECIMAL(8,2),                 -- elo moyen de la partie
-    duration INTEGER,                      -- duree du match en secondes
-    status VARCHAR(20) NOT NULL DEFAULT 'pending',  -- pending, in_progress, finished
+    goal_limit INTEGER NOT NULL DEFAULT 10,
+    avg_ball_speed DECIMAL(6,2),
+    avg_time_between_goals INTEGER,
+    avg_elo DECIMAL(8,2),
+    duration INTEGER,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     finished_at TIMESTAMP
 );
 
 -- ============================================
 -- TABLE : match_players
--- Liaison joueurs <-> matchs (equipe A ou B)
--- Permet le 1v1 et le 2v2
 -- ============================================
-CREATE TABLE match_players (
+CREATE TABLE IF NOT EXISTS match_players (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     match_id UUID NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    team VARCHAR(1) NOT NULL CHECK (team IN ('A', 'B')),
+    team VARCHAR(1) NOT NULL CHECK (team IN ('A','B')),
     UNIQUE(match_id, user_id)
 );
 
 -- ============================================
 -- TABLE : goals
--- Chaque but marque pendant un match
 -- ============================================
-CREATE TABLE goals (
+CREATE TABLE IF NOT EXISTS goals (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     match_id UUID NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
-    team VARCHAR(1) NOT NULL CHECK (team IN ('A', 'B')),
-    ball_speed DECIMAL(6,2),              -- vitesse de balle sur ce tir (km/h)
-    time_since_last_goal INTEGER,          -- temps depuis le dernier but (secondes)
+    team VARCHAR(1) NOT NULL CHECK (team IN ('A','B')),
+    ball_speed DECIMAL(6,2),
+    time_since_last_goal INTEGER,
     scored_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- ============================================
--- INDEX pour les requetes frequentes
+-- INDEX
 -- ============================================
-CREATE INDEX idx_match_players_match ON match_players(match_id);
-CREATE INDEX idx_match_players_user ON match_players(user_id);
-CREATE INDEX idx_goals_match ON goals(match_id);
-CREATE INDEX idx_users_elo ON users(elo DESC);
-CREATE INDEX idx_matches_status ON matches(status);
-CREATE INDEX idx_matches_created ON matches(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_match_players_match ON match_players(match_id);
+CREATE INDEX IF NOT EXISTS idx_match_players_user ON match_players(user_id);
+CREATE INDEX IF NOT EXISTS idx_goals_match ON goals(match_id);
+CREATE INDEX IF NOT EXISTS idx_users_elo ON users(elo DESC);
+CREATE INDEX IF NOT EXISTS idx_matches_status ON matches(status);
+CREATE INDEX IF NOT EXISTS idx_matches_created ON matches(created_at DESC);
 
 -- ============================================
--- VUE : classement des joueurs
+-- TRIGGER : mise à jour automatique stats, Elo, peak Elo et MMR
 -- ============================================
-CREATE VIEW leaderboard AS
+CREATE OR REPLACE FUNCTION update_user_stats()
+RETURNS TRIGGER AS $$
+DECLARE
+    winner_team CHAR;
+BEGIN
+    IF NEW.status = 'finished' THEN
+        -- Déterminer l'équipe gagnante
+        IF NEW.score_team_a > NEW.score_team_b THEN
+            winner_team := 'A';
+        ELSIF NEW.score_team_b > NEW.score_team_a THEN
+            winner_team := 'B';
+        ELSE
+            winner_team := NULL;
+        END IF;
+
+        FOR rec IN SELECT * FROM match_players WHERE match_id = NEW.id LOOP
+            -- total_matches
+            UPDATE users SET total_matches = total_matches + 1 WHERE id = rec.user_id;
+
+            -- total_wins
+            IF rec.team = winner_team THEN
+                UPDATE users SET total_wins = total_wins + 1 WHERE id = rec.user_id;
+            END IF;
+
+            -- total_goals
+            IF rec.team = 'A' THEN
+                UPDATE users SET total_goals = total_goals + NEW.score_team_a WHERE id = rec.user_id;
+            ELSE
+                UPDATE users SET total_goals = total_goals + NEW.score_team_b WHERE id = rec.user_id;
+            END IF;
+
+            -- Elo simple +10/-10 et mise à jour peak Elo et MMR
+            IF winner_team IS NOT NULL THEN
+                DECLARE new_elo INTEGER := CASE 
+                    WHEN rec.team = winner_team THEN elo + 10
+                    ELSE GREATEST(0, elo - 10)
+                END;
+                UPDATE users SET 
+                    elo = new_elo,
+                    elo_peak = GREATEST(elo_peak, new_elo),
+                    mmr = new_elo
+                WHERE id = rec.user_id;
+            END IF;
+        END LOOP;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_user_stats
+AFTER UPDATE OF status ON matches
+FOR EACH ROW
+WHEN (NEW.status = 'finished')
+EXECUTE FUNCTION update_user_stats();
+
+-- ============================================
+-- VUE : leaderboard
+-- ============================================
+CREATE OR REPLACE VIEW leaderboard AS
 SELECT
     u.id,
     u.pseudo,
@@ -95,18 +148,14 @@ SELECT
     u.total_matches,
     u.total_wins,
     u.total_goals,
-    CASE
-        WHEN u.total_matches > 0
-        THEN ROUND((u.total_wins::DECIMAL / u.total_matches) * 100, 1)
-        ELSE 0
-    END AS win_rate
+    CASE WHEN u.total_matches > 0 THEN ROUND((u.total_wins::DECIMAL / u.total_matches) * 100,1) ELSE 0 END AS win_rate
 FROM users u
 ORDER BY u.elo DESC;
 
 -- ============================================
--- VUE : resume d'un match avec stats
+-- VUE : résumé match
 -- ============================================
-CREATE VIEW match_summary AS
+CREATE OR REPLACE VIEW match_summary AS
 SELECT
     m.id AS match_id,
     m.score_team_a,
