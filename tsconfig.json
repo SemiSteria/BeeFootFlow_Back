@@ -42,3 +42,6 @@
   "include": ["src/**/*.ts"],
   "exclude": ["dist", "prisma.config.ts"]
 }
+    "moduleResolution": "NodeNext"
+  }
+}
