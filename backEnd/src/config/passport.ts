@@ -67,9 +67,10 @@ if (isGoogleConfigured) {
       clientID:         GOOGLE_CLIENT_ID,
       clientSecret:     GOOGLE_CLIENT_SECRET,
       callbackURL:      `${BASE_URL}/auth/google/callback`,
+      passReqToCallback: false,
       scope:            ['profile', 'email'],
     },
-    async (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done: (err: Error | null, user?: unknown) => void) => {
+    async (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done) => {
       try {
         const email = profile.emails?.[0]?.value
         if (!email) return done(new Error('No email from Google'))
@@ -100,7 +101,8 @@ if (isGoogleConfigured) {
 
         return done(null, user)
       } catch (err) {
-        return done(err)
+        const error = err instanceof Error ? err : new Error('Unknown error')
+        return done(error)
       }
     }
   ))
