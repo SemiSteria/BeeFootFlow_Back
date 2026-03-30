@@ -10,7 +10,10 @@ model users {
   id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   pseudo        String   @unique @db.VarChar(50)
   email         String   @unique @db.VarChar(255)
-  password_hash String   @db.VarChar(255)
+  password_hash String?  @db.VarChar(255)
+  google_id     String?  @unique @db.VarChar(255)
+  discord_id    String?  @unique @db.VarChar(255)
+  avatar_url    String?  @db.VarChar(500)
   elo           Int      @default(1000)
   elo_peak      Int      @default(1000)
   mmr           Int      @default(1000)
