@@ -1,4 +1,4 @@
-import type { ToFConfig, ToFReading, SpeedResult } from '../../../type/ballSpeed.types.js';
+import type { ToFConfig, ToFReading, SpeedResult } from '../../type/ballSpeed.types.js';
 
 // sound speed in m/s at 20°C
 const DEFAULT_CONFIG: ToFConfig = { 
