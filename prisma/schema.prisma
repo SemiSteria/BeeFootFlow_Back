@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model users {
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  pseudo        String   @unique @db.VarChar(50)
+  email         String   @unique @db.VarChar(255)
+  password_hash String   @db.VarChar(255)
+  elo           Int      @default(1000)
+  elo_peak      Int      @default(1000)
+  mmr           Int      @default(1000)
+  total_matches Int      @default(0)
+  total_wins    Int      @default(0)
+  total_goals   Int      @default(0)
+  created_at    DateTime @default(now()) @db.Timestamp(6)
+  updated_at    DateTime @default(now()) @db.Timestamp(6)
+}
+
+model matches {
+  id                     String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  score_team_a           Int          @default(0)
+  score_team_b           Int          @default(0)
+  goal_limit             Int          @default(10)
+  avg_ball_speed         Decimal?     @db.Decimal(6, 2)
+  avg_time_between_goals Int?
+  avg_elo                Decimal?     @db.Decimal(8, 2)
+  duration               Int?
+  status                 match_status @default(pending)
+  created_at             DateTime     @default(now()) @db.Timestamp(6)
+  finished_at            DateTime?    @db.Timestamp(6)
+}
+
+model goals {
+  id                   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  match_id             String   @db.Uuid
+  team                 String   @db.Char(1)
+  ball_speed           Decimal? @db.Decimal(6, 2)
+  time_since_last_goal Int?
+  scored_at            DateTime @default(now()) @db.Timestamp(6)
+}
+
+model match_players {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  match_id String @db.Uuid
+  user_id  String @db.Uuid
+  team     String @db.Char(1)
+
+  @@unique([match_id, user_id])
+  @@index([match_id], map: "idx_match_players_match")
+  @@index([user_id], map: "idx_match_players_user")
+}
+
+enum match_status {
+  pending
+  in_progress
+  finished
+}
