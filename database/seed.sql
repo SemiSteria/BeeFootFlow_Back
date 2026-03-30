@@ -18,8 +18,8 @@ INSERT INTO users (id, pseudo, email, password_hash, elo, elo_peak, mmr, total_m
 -- MATCH 1 : 1v1 (KingFoot vs Rookie) - termine
 -- Score : 5-2 | KingFoot gagne
 -- ============================================
-INSERT INTO matches (id, score_team_a, score_team_b, avg_ball_speed, avg_time_between_goals, avg_elo, duration, status, created_at, finished_at) VALUES
-('b1111111-1111-1111-1111-111111111111', 5, 2, 28.50, 45, 1085.00, 420, 'finished', '2026-03-28 14:00:00', '2026-03-28 14:07:00');
+INSERT INTO matches (id, score_team_a, score_team_b, goal_limit, avg_ball_speed, avg_time_between_goals, avg_elo, duration, status, created_at, finished_at) VALUES
+('b1111111-1111-1111-1111-111111111111', 5, 2, 10, 28.50, 45, 1085.00, 420, 'finished', '2026-03-28 14:00:00', '2026-03-28 14:07:00');
 
 INSERT INTO match_players (match_id, user_id, team) VALUES
 ('b1111111-1111-1111-1111-111111111111', 'a1111111-1111-1111-1111-111111111111', 'A'),
@@ -38,8 +38,8 @@ INSERT INTO goals (match_id, team, ball_speed, time_since_last_goal, scored_at) 
 -- MATCH 2 : 2v2 (KingFoot+SpeedDemon vs GoalMaster+BarStar) - termine
 -- Score : 4-3 | Equipe A gagne
 -- ============================================
-INSERT INTO matches (id, score_team_a, score_team_b, avg_ball_speed, avg_time_between_goals, avg_elo, duration, status, created_at, finished_at) VALUES
-('b2222222-2222-2222-2222-222222222222', 4, 3, 31.20, 52, 1145.00, 540, 'finished', '2026-03-29 10:00:00', '2026-03-29 10:09:00');
+INSERT INTO matches (id, score_team_a, score_team_b, goal_limit, avg_ball_speed, avg_time_between_goals, avg_elo, duration, status, created_at, finished_at) VALUES
+('b2222222-2222-2222-2222-222222222222', 4, 3, 10, 31.20, 52, 1145.00, 540, 'finished', '2026-03-29 10:00:00', '2026-03-29 10:09:00');
 
 INSERT INTO match_players (match_id, user_id, team) VALUES
 ('b2222222-2222-2222-2222-222222222222', 'a1111111-1111-1111-1111-111111111111', 'A'),
@@ -60,8 +60,8 @@ INSERT INTO goals (match_id, team, ball_speed, time_since_last_goal, scored_at) 
 -- MATCH 3 : 1v1 (GoalMaster vs TigerShot) - en cours
 -- Score : 2-1 (match pas encore fini)
 -- ============================================
-INSERT INTO matches (id, score_team_a, score_team_b, avg_ball_speed, avg_time_between_goals, avg_elo, duration, status, created_at) VALUES
-('b3333333-3333-3333-3333-333333333333', 2, 1, 25.80, 38, 1100.00, NULL, 'in_progress', '2026-03-30 09:00:00');
+INSERT INTO matches (id, score_team_a, score_team_b, goal_limit, avg_ball_speed, avg_time_between_goals, avg_elo, duration, status, created_at) VALUES
+('b3333333-3333-3333-3333-333333333333', 2, 1, 10, 25.80, 38, 1100.00, NULL, 'in_progress', '2026-03-30 09:00:00');
 
 INSERT INTO match_players (match_id, user_id, team) VALUES
 ('b3333333-3333-3333-3333-333333333333', 'a2222222-2222-2222-2222-222222222222', 'A'),

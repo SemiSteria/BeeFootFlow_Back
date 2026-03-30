@@ -73,3 +73,23 @@ erDiagram
 | Temps moyen entre buts (par match) | `matches.avg_time_between_goals` |
 | Elo moyen | `matches.avg_elo` |
 | Temps de match | `matches.duration` |
+| Limite de buts | `matches.goal_limit` (defaut 10) |
+| Pic Elo | `users.elo_peak` |
+| MMR | `users.mmr` |
+
+## Trigger
+
+| Trigger | Description |
+|---------|-------------|
+| `trg_update_user_stats` | Quand un match passe en `finished`, met a jour automatiquement : `total_matches`, `total_wins`, `total_goals`, `elo` (+10/-10), `elo_peak`, `mmr` |
+
+## Vues
+
+| Vue | Description |
+|-----|-------------|
+| `leaderboard` | Classement des joueurs par Elo avec win rate |
+| `match_summary` | Resume de chaque match avec stats calculees |
+
+## Requetes disponibles
+
+Voir `queries.sql` pour les requetes types : classement, stats joueur, historique matchs, top vitesse, stats globales.
