@@ -1,9 +1,9 @@
 import 'dotenv/config'
 import express, { Request, Response } from 'express'
 import cors from 'cors'
-import { prisma } from './lib/prisma'
-import { login } from './services/auth/login'
-import { register } from './services/auth/register'
+import { prisma } from './lib/prisma.js'
+import { login } from './services/auth/login.js'
+import { register } from './services/auth/register.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 3000
