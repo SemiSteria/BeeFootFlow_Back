@@ -12,7 +12,7 @@ export const streamRouter = Router()
  * SSE Format: 
  * data : { "speedResult": {...}, "timestamp": "..." }
  */
-streamRouter.get('/stream', (req: Request, res: Response) => {
+streamRouter.get('/', (req: Request, res: Response) => {
     // handler SSE connection
     res.set('Content-Type', 'text/event-stream')
     res.set('Cache-Control', 'no-cache')

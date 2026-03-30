@@ -1,9 +1,11 @@
 import 'dotenv/config'
 import express, { Request, Response } from 'express'
 import cors from 'cors'
-import { prisma } from './lib/prisma'
-import { login } from './services/auth/login'
-import { register } from './services/auth/register'
+import { prisma } from './lib/prisma.js'
+import { login } from './services/auth/login.js'
+import { register } from './services/auth/register.js'
+import { streamRouter } from './routes/stream.route.js'
+import { handleImpact } from './modules/iot/index.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 3000
@@ -97,6 +99,21 @@ app.post('/auth/login', async (req: Request, res: Response) => {
     return res.status(500).json({
       message: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
+// SSE — Frontend
+app.use('/stream', streamRouter)
+
+// IoT - ESP32 POST impact data
+app.post('/iot/impact', (req: Request, res: Response) => {
+  try {
+    const event = handleImpact(req.body)
+    res.status(200).json(event)
+  } catch (error) {
+    res.status(400).json({
+      message: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 })
