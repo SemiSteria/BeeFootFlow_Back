@@ -26,6 +26,7 @@ export const register = async ({ email, password }: RegisterInput) => {
 			id: true,
 			pseudo: true,
 			email: true,
+			avatar_url: true,
 			elo: true,
 			elo_peak: true,
 			mmr: true,

@@ -8,6 +8,7 @@ export interface JwtPayload {
     id:     string
     email:  string
     pseudo: string
+    avatar_url?: string | null
 }
 
 export function signToken(payload: JwtPayload): string {

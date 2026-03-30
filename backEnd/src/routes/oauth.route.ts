@@ -8,7 +8,12 @@ const FRONTEND_URL = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173'
 
 // Helper — redirect with JWT token
 function redirectWithToken(res: Response, user: any) {
-  const token = signToken({ id: user.id, email: user.email, pseudo: user.pseudo })
+  const token = signToken({
+    id: user.id,
+    email: user.email,
+    pseudo: user.pseudo,
+    avatar_url: user.avatar_url ?? null,
+  })
   res.redirect(`${FRONTEND_URL}/auth/callback?token=${token}`)
 }
 

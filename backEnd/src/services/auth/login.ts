@@ -25,6 +25,7 @@ export const login = async ({ email, password }: LoginInput) => {
     id: user.id,
     pseudo: user.pseudo,
     email: user.email,
+    avatar_url: user.avatar_url,
     elo: user.elo,
     elo_peak: user.elo_peak,
     mmr: user.mmr,
