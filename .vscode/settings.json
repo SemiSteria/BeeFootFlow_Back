@@ -1,5 +1,6 @@
 {
     "conventionalCommits.scopes": [
-        "math vdb"
+        "math vdb",
+        "add iot Handler for each impact "
     ]
 }
