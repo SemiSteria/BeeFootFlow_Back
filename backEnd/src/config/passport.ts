@@ -17,14 +17,14 @@ passport.use('discord', new DiscordStrategy(
     callbackURL:  `${BASE_URL}/auth/discord/callback`,
     scope:        ['identify', 'email'],
   },
-  async (_accessToken, _refreshToken, profile, done) => {
+  async (_accessToken: string, _refreshToken: string, profile, done) => {
     try {
       const email = profile.email
       if (!email) return done(new Error('No email from Discord'))
 
       const avatarUrl = profile.avatar
         ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
-        : undefined
+        : null
 
       let user = await prisma.users.findFirst({
         where: { OR: [{ discord_id: profile.id }, { email }] },
@@ -65,12 +65,12 @@ passport.use('google', new GoogleStrategy(
     callbackURL:      `${BASE_URL}/auth/google/callback`,
     scope:            ['profile', 'email'],
   },
-  async (_accessToken, _refreshToken, profile: any, done: any) => {
+  async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
     try {
       const email = profile.emails?.[0]?.value
       if (!email) return done(new Error('No email from Google'))
 
-      const avatarUrl = profile.photos?.[0]?.value
+      const avatarUrl = profile.photos?.[0]?.value ?? null
 
       let user = await prisma.users.findFirst({
         where: { OR: [{ google_id: profile.id }, { email }] },

@@ -11,7 +11,7 @@ export const login = async ({ email, password }: LoginInput) => {
     where: { email },
   })
 
-  if (!user) {
+  if (!user || !user.password_hash) {
     throw new Error('Invalid credentials')
   }
 

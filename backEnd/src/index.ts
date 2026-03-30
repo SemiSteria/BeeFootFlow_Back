@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import express, { Request, Response } from 'express'
 import cors from 'cors'
+import swaggerUi from 'swagger-ui-express'
+import swaggerJsdoc from 'swagger-jsdoc'
 import { prisma } from './lib/prisma.js'
 import { login } from './services/auth/login.js'
 import { register } from './services/auth/register.js'
@@ -9,6 +11,55 @@ import { handleImpact } from './modules/iot/index.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 3000
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'BeeFootFlow API',
+      version: '1.0.0',
+      description: 'API pour la gestion des matchs et équipes de baby-foot',
+    },
+    servers: [
+      {
+        url: process.env.API_URL ?? `http://localhost:${PORT}`,
+        description: 'API Server',
+      },
+    ],
+    components: {
+      schemas: {
+        User: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            pseudo: { type: 'string' },
+            email: { type: 'string', format: 'email' },
+            elo: { type: 'integer' },
+            elo_peak: { type: 'integer' },
+            mmr: { type: 'integer' },
+            total_matches: { type: 'integer' },
+            total_wins: { type: 'integer' },
+            total_goals: { type: 'integer' },
+            created_at: { type: 'string', format: 'date-time' },
+          },
+        },
+        Team: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+            tag: { type: 'string', nullable: true },
+            captain_id: { type: 'string', format: 'uuid' },
+            created_at: { type: 'string', format: 'date-time' },
+          },
+        },
+      },
+    },
+  },
+  apis: [],
+}
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions)
 
 app.use(express.json())
 app.use(
@@ -37,9 +88,8 @@ app.use(
   }),
 )
 
-app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Hello World' })
-})
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.get('/health/db', async (_req: Request, res: Response) => {
   try {
