@@ -3,6 +3,9 @@
 -- Baby-foot connecte - Challenge 48h
 -- ============================================
 
+-- Creation de la base de donnees
+-- CREATE DATABASE "BeeFootFlow";
+
 -- Extension pour generer des UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -31,6 +34,7 @@ CREATE TABLE matches (
     score_team_a INTEGER NOT NULL DEFAULT 0,
     score_team_b INTEGER NOT NULL DEFAULT 0,
     avg_ball_speed DECIMAL(6,2),          -- vitesse moyenne de balle (km/h)
+    avg_time_between_goals INTEGER,        -- temps moyen entre les buts (secondes)
     avg_elo DECIMAL(8,2),                 -- elo moyen de la partie
     duration INTEGER,                      -- duree du match en secondes
     status VARCHAR(20) NOT NULL DEFAULT 'pending',  -- pending, in_progress, finished
@@ -108,5 +112,6 @@ SELECT
     m.created_at,
     m.finished_at,
     (SELECT COUNT(*) FROM goals g WHERE g.match_id = m.id) AS total_goals,
-    (SELECT AVG(g.ball_speed) FROM goals g WHERE g.match_id = m.id) AS avg_goal_speed
+    (SELECT AVG(g.ball_speed) FROM goals g WHERE g.match_id = m.id) AS avg_goal_speed,
+    (SELECT AVG(g.time_since_last_goal) FROM goals g WHERE g.match_id = m.id AND g.time_since_last_goal IS NOT NULL) AS avg_time_between_goals
 FROM matches m;
