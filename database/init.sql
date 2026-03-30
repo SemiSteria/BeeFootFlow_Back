@@ -3,11 +3,23 @@
 -- Baby-foot tracker 1v1 / 2v2
 -- ============================================
 
--- CREATE DATABASE "BeeFootFlow";
--- \c BeeFootFlow
+SELECT 'CREATE DATABASE "BeeFootFlow" TEMPLATE template0'
+WHERE NOT EXISTS (
+    SELECT 1 FROM pg_database WHERE datname = 'BeeFootFlow'
+)\gexec
+\c BeeFootFlow
 
 -- Extension pour UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Enum pour le statut des matchs
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'match_status') THEN
+        CREATE TYPE match_status AS ENUM ('pending', 'in_progress', 'finished');
+    END IF;
+END
+$$;
 
 -- ============================================
 -- TABLE : users
@@ -39,7 +51,7 @@ CREATE TABLE IF NOT EXISTS matches (
     avg_time_between_goals INTEGER,
     avg_elo DECIMAL(8,2),
     duration INTEGER,
-    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    status match_status NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     finished_at TIMESTAMP
 );
