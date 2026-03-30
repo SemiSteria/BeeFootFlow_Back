@@ -1,4 +1,4 @@
-import type { ToFConfig, ToFReading, SpeedResult } from '../../../type/ballSpeed.types';
+import type { ToFConfig, ToFReading, SpeedResult } from '../../../type/ballSpeed.types.js';
 
 // sound speed in m/s at 20°C
 const DEFAULT_CONFIG: ToFConfig = { 
@@ -10,6 +10,7 @@ const DEFAULT_CONFIG: ToFConfig = {
  * 
  * Formula : c = 331.3 x sqrt(1 + T/273.15)
  */
+
 export function soundSpeedAtTemperature(tempCelsius: number): number {
     return 331.3 * Math.sqrt(1 + tempCelsius / 273.15);
 }
