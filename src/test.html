@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Générateur QR Code</h1>
+  <button onclick="generateQR()">Générer QR Code</button>
+  <div id="error" style="color: red;"></div>
+  <img id="qrImage" style="max-width: 300px; margin-top: 20px;"/>
+  
+  <script>
+    async function generateQR() {
+      try {
+        const res = await fetch('http://localhost:3000/api/matches', { method: 'POST' });
+        if (!res.ok) throw new Error(`Erreur serveur: ${res.status}`)
+        const data = await res.json()
+        console.log('QR Code reçu:', data)
+        console.log('QR Code data URL longueur:', data.qrCode.length)
+        
+        // Vérifier que c'est une data URL valide
+        if (!data.qrCode.startsWith('data:')) {
+          throw new Error('QR Code invalide - pas une data URL')
+        }
+        
+        const img = document.getElementById('qrImage')
+        img.src = data.qrCode
+        img.onload = () => console.log('Image QR Code chargée avec succès')
+        img.onerror = () => console.error('Erreur lors du chargement de l\'image QR Code')
+        
+        document.getElementById('error').textContent = `✓ QR Code généré pour le match: ${data.matchId}`
+      } catch (error) {
+        console.error('Erreur:', error)
+        document.getElementById('error').textContent = 'Erreur: ' + error.message
+      }
+    }
+  </script>
+</body>
+</html>
