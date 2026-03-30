@@ -5,6 +5,7 @@ erDiagram
     users {
         UUID id PK
         VARCHAR pseudo UK
+        VARCHAR email UK
         VARCHAR password_hash
         INTEGER elo
         INTEGER total_matches
