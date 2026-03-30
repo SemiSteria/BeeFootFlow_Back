@@ -16,9 +16,12 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true)
 
-      const allowedOrigins = [process.env.FRONTEND_ORIGIN].filter(
-        Boolean,
-      ) as string[]
+      const allowedOrigins = [
+        process.env.FRONTEND_ORIGIN,
+        ...(process.env.FRONTEND_ORIGINS
+          ?.split(',')
+          .map((value) => value.trim()) ?? []),
+      ].filter(Boolean) as string[]
 
       const isLocalhostDevOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(
         origin,
@@ -28,6 +31,7 @@ app.use(
         return callback(null, true)
       }
 
+      console.warn(`Blocked by CORS: ${origin}`)
       return callback(new Error('Not allowed by CORS'))
     },
   }),
