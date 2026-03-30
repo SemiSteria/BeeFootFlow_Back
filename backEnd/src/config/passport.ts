@@ -1,6 +1,6 @@
 import passport from 'passport'
 import { Strategy as DiscordStrategy } from 'passport-discord'
-import { Strategy as GoogleStrategy } from 'passport-oauth2'
+import { Profile as GoogleProfile, Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import { prisma } from '../lib/prisma.js'
 
 const DISCORD_CLIENT_ID     = process.env.DISCORD_CLIENT_ID     ?? ''
@@ -64,14 +64,12 @@ if (isDiscordConfigured) {
 if (isGoogleConfigured) {
   passport.use('google', new GoogleStrategy(
     {
-      authorizationURL: 'https://accounts.google.com/o/oauth2/v2/auth',
-      tokenURL:         'https://oauth2.googleapis.com/token',
       clientID:         GOOGLE_CLIENT_ID,
       clientSecret:     GOOGLE_CLIENT_SECRET,
       callbackURL:      `${BASE_URL}/auth/google/callback`,
       scope:            ['profile', 'email'],
     },
-    async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
+    async (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done: (err: Error | null, user?: unknown) => void) => {
       try {
         const email = profile.emails?.[0]?.value
         if (!email) return done(new Error('No email from Google'))
