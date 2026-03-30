@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --exec 'node --loader ts-node/esm' backEnd/src/index.ts",  
+    "dev": "tsx watch backEnd/src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
@@ -39,6 +39,7 @@
     "@types/pg": "^8.20.0",
     "nodemon": "^3.1.14",
     "prisma": "^7.6.0",
+    "tsx": "^4.20.6",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2"
   }
