@@ -6,13 +6,13 @@
 -- ============================================
 -- JOUEURS
 -- ============================================
-INSERT INTO users (id, pseudo, email, password_hash, elo, total_matches, total_wins, total_goals) VALUES
-('a1111111-1111-1111-1111-111111111111', 'KingFoot',   'kingfoot@email.com',   '$2b$10$hashedpassword1', 1250, 5, 4, 12),
-('a2222222-2222-2222-2222-222222222222', 'GoalMaster', 'goalmaster@email.com', '$2b$10$hashedpassword2', 1180, 5, 3, 9),
-('a3333333-3333-3333-3333-333333333333', 'SpeedDemon', 'speeddemon@email.com', '$2b$10$hashedpassword3', 1050, 4, 2, 7),
-('a4444444-4444-4444-4444-444444444444', 'Rookie',     'rookie@email.com',     '$2b$10$hashedpassword4', 920,  3, 0, 2),
-('a5555555-5555-5555-5555-555555555555', 'BarStar',    'barstar@email.com',    '$2b$10$hashedpassword5', 1100, 4, 2, 8),
-('a6666666-6666-6666-6666-666666666666', 'TigerShot',  'tigershot@email.com',  '$2b$10$hashedpassword6', 1020, 3, 1, 5);
+INSERT INTO users (id, pseudo, email, password_hash, elo, elo_peak, elo_lowest, total_matches, total_wins, total_goals) VALUES
+('a1111111-1111-1111-1111-111111111111', 'KingFoot',   'kingfoot@email.com',   '$2b$10$hashedpassword1', 1250, 1300, 980,  5, 4, 12),
+('a2222222-2222-2222-2222-222222222222', 'GoalMaster', 'goalmaster@email.com', '$2b$10$hashedpassword2', 1180, 1220, 1000, 5, 3, 9),
+('a3333333-3333-3333-3333-333333333333', 'SpeedDemon', 'speeddemon@email.com', '$2b$10$hashedpassword3', 1050, 1100, 950,  4, 2, 7),
+('a4444444-4444-4444-4444-444444444444', 'Rookie',     'rookie@email.com',     '$2b$10$hashedpassword4', 920,  1000, 880,  3, 0, 2),
+('a5555555-5555-5555-5555-555555555555', 'BarStar',    'barstar@email.com',    '$2b$10$hashedpassword5', 1100, 1150, 970,  4, 2, 8),
+('a6666666-6666-6666-6666-666666666666', 'TigerShot',  'tigershot@email.com',  '$2b$10$hashedpassword6', 1020, 1060, 960,  3, 1, 5);
 
 -- ============================================
 -- MATCH 1 : 1v1 (KingFoot vs Rookie) - termine

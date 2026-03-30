@@ -8,6 +8,8 @@ erDiagram
         VARCHAR email UK
         VARCHAR password_hash
         INTEGER elo
+        INTEGER elo_peak
+        INTEGER elo_lowest
         INTEGER total_matches
         INTEGER total_wins
         INTEGER total_goals

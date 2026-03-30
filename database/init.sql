@@ -19,6 +19,8 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     elo INTEGER NOT NULL DEFAULT 1000,
+    elo_peak INTEGER NOT NULL DEFAULT 1000,    -- pic MMR (plus haut elo atteint)
+    elo_lowest INTEGER NOT NULL DEFAULT 1000,  -- lot MMR (plus bas elo atteint)
     total_matches INTEGER NOT NULL DEFAULT 0,
     total_wins INTEGER NOT NULL DEFAULT 0,
     total_goals INTEGER NOT NULL DEFAULT 0,
@@ -87,6 +89,8 @@ SELECT
     u.id,
     u.pseudo,
     u.elo,
+    u.elo_peak,
+    u.elo_lowest,
     u.total_matches,
     u.total_wins,
     u.total_goals,
