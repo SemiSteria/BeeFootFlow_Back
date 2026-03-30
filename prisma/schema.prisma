@@ -17,8 +17,36 @@ model users {
   total_matches Int      @default(0)
   total_wins    Int      @default(0)
   total_goals   Int      @default(0)
+  owned_teams   teams[]      @relation("team_captain")
+  team_memberships team_members[]
   created_at    DateTime @default(now()) @db.Timestamp(6)
   updated_at    DateTime @default(now()) @db.Timestamp(6)
+}
+
+model teams {
+  id         String        @id @default(uuid()) @db.Uuid
+  name       String        @unique @db.VarChar(60)
+  tag        String?       @unique @db.VarChar(10)
+  captain_id String        @db.Uuid
+  captain    users         @relation("team_captain", fields: [captain_id], references: [id])
+  members    team_members[]
+  created_at DateTime      @default(now()) @db.Timestamp(6)
+
+  @@index([captain_id], map: "idx_teams_captain")
+}
+
+model team_members {
+  id         String   @id @default(uuid()) @db.Uuid
+  team_id    String   @db.Uuid
+  user_id    String   @db.Uuid
+  role       String   @default("member") @db.VarChar(20)
+  team       teams    @relation(fields: [team_id], references: [id], onDelete: Cascade)
+  user       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+
+  @@unique([team_id, user_id])
+  @@index([team_id], map: "idx_team_members_team")
+  @@index([user_id], map: "idx_team_members_user")
 }
 
 model matches {

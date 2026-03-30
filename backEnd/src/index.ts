@@ -107,6 +107,120 @@ app.post('/auth/login', async (req: Request, res: Response) => {
   }
 })
 
+app.post('/teams', async (req: Request, res: Response) => {
+  try {
+    const { name, tag, userId } = req.body as {
+      name?: string
+      tag?: string
+      userId?: string
+    }
+
+    const normalizedName = name?.trim()
+    const normalizedTag = tag?.trim().toUpperCase()
+
+    if (!normalizedName || !userId) {
+      return res.status(400).json({
+        message: 'name and userId are required',
+      })
+    }
+
+    if (normalizedName.length < 3 || normalizedName.length > 60) {
+      return res.status(400).json({
+        message: 'name must be between 3 and 60 characters',
+      })
+    }
+
+    if (normalizedTag && (normalizedTag.length < 2 || normalizedTag.length > 10)) {
+      return res.status(400).json({
+        message: 'tag must be between 2 and 10 characters',
+      })
+    }
+
+    const user = await prisma.users.findUnique({ where: { id: userId } })
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      })
+    }
+
+    const team = await prisma.teams.create({
+      data: {
+        name: normalizedName,
+        tag: normalizedTag ?? null,
+        captain_id: userId,
+        members: {
+          create: {
+            user_id: userId,
+            role: 'captain',
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        tag: true,
+        captain_id: true,
+        created_at: true,
+      },
+    })
+
+    return res.status(201).json({ team })
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      return res.status(409).json({
+        message: 'Team name or tag already exists',
+      })
+    }
+
+    return res.status(500).json({
+      message: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
+app.get('/teams/user/:userId', async (req: Request, res: Response) => {
+  try {
+    const rawUserId = req.params.userId
+
+    if (typeof rawUserId !== 'string' || !rawUserId) {
+      return res.status(400).json({ message: 'userId is required' })
+    }
+
+    const userId = rawUserId
+
+    const teams = await prisma.teams.findMany({
+      where: {
+        OR: [
+          { captain_id: userId },
+          { members: { some: { user_id: userId } } },
+        ],
+      },
+      orderBy: { created_at: 'desc' },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                pseudo: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return res.status(200).json({ teams })
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
 // SSE — Frontend
 app.use('/stream', streamRouter)
 
