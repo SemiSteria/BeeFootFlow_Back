@@ -89,7 +89,7 @@ app.use(
 )
 
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.get('/health/db', async (_req: Request, res: Response) => {
   try {
