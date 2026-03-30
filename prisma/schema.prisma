@@ -4,16 +4,15 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
 }
 
 model users {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   pseudo        String   @unique @db.VarChar(50)
   email         String   @unique @db.VarChar(255)
-  password_hash String?  @db.VarChar(100)
-  google_id     String?  @unique @db.VarChar(100)
-  discord_id    String?  @unique @db.VarChar(100)
+  password_hash String?  @db.VarChar(255)
+  google_id     String?  @unique @db.VarChar(255)
+  discord_id    String?  @unique @db.VarChar(255)
   avatar_url    String?  @db.VarChar(500)
   elo           Int      @default(1000)
   elo_peak      Int      @default(1000)
@@ -26,7 +25,7 @@ model users {
 }
 
 model matches {
-  id                     String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                     String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   score_team_a           Int          @default(0)
   score_team_b           Int          @default(0)
   goal_limit             Int          @default(10)
@@ -40,7 +39,7 @@ model matches {
 }
 
 model goals {
-  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   match_id             String   @db.Uuid
   team                 String   @db.Char(1)
   ball_speed           Decimal? @db.Decimal(6, 2)
@@ -49,7 +48,7 @@ model goals {
 }
 
 model match_players {
-  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   match_id String @db.Uuid
   user_id  String @db.Uuid
   team     String @db.Char(1)
