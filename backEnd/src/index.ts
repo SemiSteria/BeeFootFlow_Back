@@ -1,9 +1,11 @@
 import 'dotenv/config'
 import express, { Request, Response } from 'express'
 import cors from 'cors'
+import passport from './config/passport.js'
 import { prisma } from './lib/prisma.js'
 import { login } from './services/auth/login.js'
 import { register } from './services/auth/register.js'
+import { oauthRouter } from './routes/oauth.route.js'
 import { streamRouter } from './routes/stream.route.js'
 import { handleImpact } from './modules/iot/index.js'
 
@@ -11,6 +13,7 @@ const app = express()
 const PORT = process.env.PORT ?? 3000
 
 app.use(express.json())
+app.use(passport.initialize())
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -40,6 +43,8 @@ app.use(
 app.get('/', (_req: Request, res: Response) => {
   return res.send('Hello World!')
 })
+
+app.use('/auth', oauthRouter)
 
 app.get('/health/db', async (_req: Request, res: Response) => {
   try {
