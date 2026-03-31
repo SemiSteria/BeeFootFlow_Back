@@ -226,6 +226,46 @@ app.get('/teams/user/:userId', async (req: Request, res: Response) => {
   }
 })
 
+app.get('/matchesScore', async (_req: Request, res: Response) => {
+  try {
+    const matches = await prisma.matches.findMany({
+      orderBy: { created_at: 'desc' },
+    })
+
+    return res.status(200).json({ matches })
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
+app.get('/matchesScore/:id', async (req: Request, res: Response) => {
+  try {
+    const matchId = req.params.id
+
+    if (!matchId || typeof matchId !== 'string') {
+      return res.status(400).json({ message: 'Match ID is required' })
+    }
+
+    const match = await prisma.matches.findUnique({
+      where: { id: matchId },
+    })
+
+    if (!match) {
+      return res.status(404).json({ message: 'Match not found' })
+    }
+
+    return res.status(200).json({ match })
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
 // SSE — Frontend
 app.use('/stream', streamRouter)
 
