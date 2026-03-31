@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "backEnd/src",
     "outDir": "./dist",
     "module": "nodenext",
     "target": "es2020",
@@ -16,6 +16,6 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["backEnd/src/**/*.ts"],
   "exclude": ["dist", "prisma.config.ts"]
 }
